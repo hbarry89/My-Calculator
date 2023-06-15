@@ -61,7 +61,7 @@ const AddIntentHandler = {
     }
 };
 
-    // --- SUBTRACT OPERATION ---
+    // --- SUBTRACTION OPERATION ---
 
  const SubtractIntentHandler = {
     canHandle(handlerInput) {
@@ -79,6 +79,77 @@ const AddIntentHandler = {
             // Perform operation
             let result = parseInt(secondNumber) - parseInt(firstNumber);
             speechText = `The result of ${secondNumber} minus ${firstNumber} is ${result}`;
+            displayText = `${result}`;
+
+            return handlerInput.responseBuilder
+            .speak(speechText)
+            .withSimpleCard(appName, displayText)
+            .withShouldEndSession(true)
+            .getResponse();
+
+        } else {
+            // Ask for the required input
+            return handlerInput.responseBuilder
+            .addDelegationDirective('intent')
+            .getResponse();
+        }
+    }
+};
+
+    // --- MULTIPLICATION OPERATION ---
+
+const MultiplyIntentHandler = {
+    canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+            && handlerInput.requestEnvelope.request.intent.name === 'MultiplyIntent';
+    },
+    handle(handlerInput) {
+        let speechText = '';
+        let displayText = '';
+        let intent = handlerInput.requestEnvelope.request.intent;
+        let firstNumber = intent.slots.firstNumber.value;
+        let secondNumber = intent.slots.secondNumber.value;
+
+        if (firstNumber && secondNumber) {
+            // Perform operation
+            let result = parseInt(firstNumber) * parseInt(secondNumber);
+            speechText = `The result of ${firstNumber} multiplied by ${secondNumber} is ${result}`;
+            displayText = `${result}`;
+
+            return handlerInput.responseBuilder
+            .speak(speechText)
+            .withSimpleCard(appName, displayText)
+            .withShouldEndSession(true)
+            .getResponse();
+
+        } else {
+            // Ask for the required input
+            return handlerInput.responseBuilder
+            .addDelegationDirective('intent')
+            .getResponse();
+        }
+    }
+};
+
+        // --- DIVISION OPERATION ---
+
+const DivideIntentHandler = {
+    canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+            && handlerInput.requestEnvelope.request.intent.name === 'DivisionIntent';
+    },
+    handle(handlerInput) {
+        let speechText = '';
+        let displayText = '';
+        let intent = handlerInput.requestEnvelope.request.intent;
+        let firstNumber = intent.slots.firstNumber.value;
+        let secondNumber = intent.slots.secondNumber.value;
+
+        if (firstNumber && secondNumber) {
+            // Perform operation
+            let result = parseInt(firstNumber) / parseInt(secondNumber);
+            result = +result.toFixed(2); //two decimal places
+            speechText = `The result of ${firstNumber} divided by ${secondNumber} is ${result}`;
             displayText = `${result}`;
 
             return handlerInput.responseBuilder
@@ -146,6 +217,8 @@ exports.handler = Alexa.SkillBuilders.custom()
      .addRequestHandlers(LaunchRequestHandler,
                          AddIntentHandler, // Custom Handler (Addition)
                          SubtractIntentHandler, // Custom Handler (Subtraction)
+                         MultiplyIntentHandler, // Custom Handler (Multiplication)
+                         DivideIntentHandler, // Custom Handler (Division)
                          HelpIntentHandler,
                          CancelAndStopIntentHandler,
                          SessionEndedRequestHandler).lambda();
