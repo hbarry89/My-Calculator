@@ -25,6 +25,9 @@ const LaunchRequestHandler = {
 };
 
 //implement custom handlers
+
+    // --- ADDITION OPERATION ---
+
 const AddIntentHandler = {
     canHandle(handlerInput) {
         return handlerInput.requestEnvelope.request.type === 'IntentRequest'
@@ -41,6 +44,41 @@ const AddIntentHandler = {
             // Perform operation
             let result = parseInt(firstNumber) + parseInt(secondNumber);
             speechText = `The result of ${firstNumber} and ${secondNumber} is ${result}`;
+            displayText = `${result}`;
+
+            return handlerInput.responseBuilder
+            .speak(speechText)
+            .withSimpleCard(appName, displayText)
+            .withShouldEndSession(true)
+            .getResponse();
+
+        } else {
+            // Ask for the required input
+            return handlerInput.responseBuilder
+            .addDelegationDirective('intent')
+            .getResponse();
+        }
+    }
+};
+
+    // --- SUBTRACT OPERATION ---
+
+ const SubtractIntentHandler = {
+    canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+            && handlerInput.requestEnvelope.request.intent.name === 'SubtractIntent';
+    },
+    handle(handlerInput) {
+        let speechText = '';
+        let displayText = '';
+        let intent = handlerInput.requestEnvelope.request.intent;
+        let firstNumber = intent.slots.firstNumber.value;
+        let secondNumber = intent.slots.secondNumber.value;
+
+        if (firstNumber && secondNumber) {
+            // Perform operation
+            let result = parseInt(secondNumber) - parseInt(firstNumber);
+            speechText = `The result of ${secondNumber} minus ${firstNumber} is ${result}`;
             displayText = `${result}`;
 
             return handlerInput.responseBuilder
@@ -106,7 +144,8 @@ const SessionEndedRequestHandler = {
 //Remember to add custom request handlers here
 exports.handler = Alexa.SkillBuilders.custom()
      .addRequestHandlers(LaunchRequestHandler,
-                         AddIntentHandler, //custom handler
+                         AddIntentHandler, // Custom Handler (Addition)
+                         SubtractIntentHandler, // Custom Handler (Subtraction)
                          HelpIntentHandler,
                          CancelAndStopIntentHandler,
                          SessionEndedRequestHandler).lambda();
