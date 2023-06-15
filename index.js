@@ -4,7 +4,7 @@
 const Alexa = require('ask-sdk-core');
 
 //skill name
-const appName = '';
+const appName = 'My Calculator';
 
 //code for the handlers
 const LaunchRequestHandler = {
@@ -13,9 +13,9 @@ const LaunchRequestHandler = {
     },
     handle(handlerInput) {
         //welcome message
-        let speechText = '';
+        let speechText = 'Welcome to My Calculator. You can say, add 2 and 5, or multiply 4 and 8';
         //welcome screen message
-        let displayText = ""
+        let displayText = "Welcome to My Calculator"
         return handlerInput.responseBuilder
             .speak(speechText)
             .reprompt(speechText)
@@ -25,7 +25,38 @@ const LaunchRequestHandler = {
 };
 
 //implement custom handlers
+const AddIntentHandler = {
+    canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest'
+            && handlerInput.requestEnvelope.request.intent.name === 'AddIntent';
+    },
+    handle(handlerInput) {
+        let speechText = '';
+        let displayText = '';
+        let intent = handlerInput.requestEnvelope.request.intent;
+        let firstNumber = intent.slots.firstNumber.value;
+        let secondNumber = intent.slots.secondNumber.value;
 
+        if (firstNumber && secondNumber) {
+            // Perform operation
+            let result = parseInt(firstNumber) + parseInt(secondNumber);
+            speechText = `The result of ${firstNumber} and ${secondNumber} is ${result}`;
+            displayText = `${result}`;
+
+            return handlerInput.responseBuilder
+            .speak(speechText)
+            .withSimpleCard(appName, displayText)
+            .withShouldEndSession(true)
+            .getResponse();
+
+        } else {
+            // Ask for the required input
+            return handlerInput.responseBuilder
+            .addDelegationDirective('intent')
+            .getResponse();
+        }
+    }
+};
 
 //end Custom handlers
 
@@ -36,7 +67,7 @@ const HelpIntentHandler = {
     },
     handle(handlerInput) {
         //help text for your skill
-        let speechText = '';
+        let speechText = 'You can say add 3 and 5 or divide 50 by 2';
 
         return handlerInput.responseBuilder
             .speak(speechText)
@@ -75,6 +106,7 @@ const SessionEndedRequestHandler = {
 //Remember to add custom request handlers here
 exports.handler = Alexa.SkillBuilders.custom()
      .addRequestHandlers(LaunchRequestHandler,
+                         AddIntentHandler, //custom handler
                          HelpIntentHandler,
                          CancelAndStopIntentHandler,
                          SessionEndedRequestHandler).lambda();
